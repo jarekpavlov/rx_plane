@@ -50,22 +50,26 @@ void setup()
 unsigned long lastRecvTime = 0;
 void recvData()
 {
-  while ( radio.available() ) {
   radio.read(&data, sizeof(Signal));
   lastRecvTime = millis();                                    // Receive the data
-  wdt_reset();
-  }
 }
 void loop()
 {
-  recvData();
-  unsigned long now = millis();
-  if ( now - lastRecvTime > 1000 ) {
-    ResetData();                                                // Signal lost.. Reset data 
+  while ( radio.available() ) {
+    recvData();
+    unsigned long now = millis();
+    if ( now - lastRecvTime > 1000 ) {
+      ResetData();                                                // Signal lost.. Reset data 
+    }
+    ch_width_6 = map(data.roll, 0, 255, 1000, 2000);  
+    ch_width_5 = map(data.pitch, 0, 255, 1000, 2000); 
+    ch_width_3 = map(data.throttle, 0, 255, 1000, 2000);  
+    ch6.writeMicroseconds(ch_width_6);                          // Write the PWM signal
+    ch5.writeMicroseconds(ch_width_5);
+    ch3.writeMicroseconds(ch_width_3);
+    wdt_reset();
   }
-  ch_width_6 = map(data.roll, 0, 255, 1000, 2000);  
-  ch_width_5 = map(data.pitch, 0, 255, 1000, 2000); 
-  ch_width_3 = map(data.throttle, 0, 255, 1000, 2000);  
+  ResetData();
   ch6.writeMicroseconds(ch_width_6);                          // Write the PWM signal
   ch5.writeMicroseconds(ch_width_5);
   ch3.writeMicroseconds(ch_width_3);
