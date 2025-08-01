@@ -9,6 +9,9 @@ int ch_width_3 = 0;
 int ch_width_5 = 0;
 int ch_width_6 = 0;
 
+float voltageRawVal;
+byte ledOut = 8;
+
 Servo ch6;
 Servo ch5;
 Servo ch3;
@@ -34,7 +37,7 @@ void setup()
   ch3.attach(3);
   ch5.attach(5);
   ch6.attach(6);
-
+  pinMode(ledOut, OUTPUT);
                                                            
   ResetData();                                             // Configure the NRF24 module
   radio.begin();
@@ -58,6 +61,13 @@ void recvData()
 }
 void loop()
 {
+  voltageRawVal = analogRead(A6)*0.00489*6.085;
+  if (voltageRawVal < 9) {
+    digitalWrite(ledOut, HIGH);
+  } else {
+    digitalWrite(ledOut, LOW);
+  }
+
   recvData();
   unsigned long now = millis();
   if ( now - lastRecvTime > 1000 ) {
