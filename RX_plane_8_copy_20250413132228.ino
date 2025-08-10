@@ -84,7 +84,6 @@ int ch_width_6 = 0;
 
 float voltageRawVal;
 byte ledOut = 8;
-byte ledArduino = 13;
 
 Servo ch6;
 Servo ch5;
@@ -108,8 +107,11 @@ void ResetData()
 void setup()
 {
   Serial.begin(9600);
+  // Set the pins for each PWM signal                                                
+  ch3.attach(3);
+  ch5.attach(5);
+  ch6.attach(6); 
   pinMode(ledOut, OUTPUT);
-  pinMode(ledArduino, OUTPUT); 
   ///Setting up MSU:
   Wire.setClock(400000);
   Wire.begin();
@@ -133,26 +135,21 @@ void setup()
     rateCalibrationYaw /= 2000;
     loopTimer = micros();
 ///
-// Set the pins for each PWM signal                                                
-  ch3.attach(3);
-  ch5.attach(5);
-  ch6.attach(6);                              
+                             
   ResetData();      
-                                     // Configure the NRF24 module
-  /*                               
+                                  // Configure the NRF24 module                         
   radio.begin();
   radio.openReadingPipe(1,pipeIn);
   radio.setChannel(100);
   radio.setAutoAck(false);
-  radio.setDataRate(RF24_250KBPS);                          // The lowest data rate value for more stable communication  
-  radio.setPALevel(RF24_PA_MAX);                            // Output power is set for maximum
-  //radio.startListening();  
-  */                                 // Start the radio comunication for receiver  
+  radio.setDataRate(RF24_250KBPS); // The lowest data rate value for more stable communication 
+  radio.setPALevel(RF24_PA_MAX);   // Output power is set for maximum                                              
+  radio.startListening();        // Start the radio comunication for receiver                      
   delay(120);
 }
 
 unsigned long lastRecvTime = 0;
-/*
+
 void recvData()
 {
   while ( radio.available() ) {
@@ -160,7 +157,7 @@ void recvData()
   lastRecvTime = millis();                                    // Receive the data
   }
 }
-*/
+
 void loop()
 {
   ///MSU section
@@ -177,12 +174,6 @@ void loop()
   kalman1d(kalmanAngleRoll, kalmanUncertaintyAngleRoll, rateRoll, angleRoll);
   kalmanAngleRoll=kalman1DOOutput[0]; 
   kalmanUncertaintyAngleRoll = kalman1DOOutput[1];
-
-  if (kalmanAngleRoll > 30 || kalmanAnglePitch > 30) {
-    digitalWrite(ledArduino, HIGH);
-  } else {
-    digitalWrite(ledArduino, LOW);
-  }
   ///
   
   voltageRawVal = analogRead(A6)*0.00489*6.085;
@@ -193,21 +184,22 @@ void loop()
   }
   ch_width_6 = map(kalmanAngleRoll, -90, 90, 1000, 2000);
   ch6.writeMicroseconds(ch_width_6); 
-/*
+
   recvData();
 
   unsigned long now = millis();
   if ( now - lastRecvTime > 1000 ) {
     ResetData();                                                // Signal lost.. Reset data 
   }
-
-  ch_width_6 = map(data.roll, 0, 255, 1000, 2000);  
+  
+  //ch_width_6 = map(data.roll, 0, 255, 1000, 2000);  
   ch_width_5 = map(data.pitch, 0, 255, 1000, 2000); 
   ch_width_3 = map(data.throttle, 0, 255, 1000, 2000);  
-  ch6.writeMicroseconds(ch_width_6);                          // Write the PWM signal
+  //ch6.writeMicroseconds(ch_width_6);                          // Write the PWM signal
   ch5.writeMicroseconds(ch_width_5);
   ch3.writeMicroseconds(ch_width_3);
- */
+  
+
   while (micros() - loopTimer < 5000);
   loopTimer=micros();
 }
