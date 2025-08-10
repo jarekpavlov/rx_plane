@@ -111,6 +111,7 @@ void setup()
   ch3.attach(3);
   ch5.attach(5);
   ch6.attach(6); 
+  ch3.writeMicroseconds(1000);
   pinMode(ledOut, OUTPUT);
   ///Setting up MSU:
   Wire.setClock(400000);
@@ -199,7 +200,6 @@ void loop()
   ch5.writeMicroseconds(ch_width_5);
   ch3.writeMicroseconds(ch_width_3);
   
-
   while (micros() - loopTimer < 5000);
   loopTimer=micros();
 }
