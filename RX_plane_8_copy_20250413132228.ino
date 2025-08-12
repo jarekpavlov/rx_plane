@@ -6,6 +6,8 @@
 #include <avr/wdt.h>
 #include <Wire.h>
 
+bool autopilot = true;
+
 ////MSU variables:
 float rateCalibrationRoll, rateCalibrationPitch, rateCalibrationYaw;
 int rateCalibrationNumber;
@@ -183,8 +185,6 @@ void loop()
   } else {
     digitalWrite(ledOut, LOW);
   }
-  ch_width_6 = map(kalmanAngleRoll, -90, 90, 1000, 2000);
-  ch6.writeMicroseconds(ch_width_6); 
 
   recvData();
 
@@ -192,14 +192,33 @@ void loop()
   if ( now - lastRecvTime > 1000 ) {
     ResetData();                                                // Signal lost.. Reset data 
   }
-  
-  //ch_width_6 = map(data.roll, 0, 255, 1000, 2000);  
-  ch_width_5 = map(data.pitch, 0, 255, 1000, 2000); 
-  ch_width_3 = map(data.throttle, 0, 255, 1000, 2000);  
-  //ch6.writeMicroseconds(ch_width_6);                          // Write the PWM signal
+  if (autopilot) {
+    int effectRoll  = limitAngle(-kalmanAngleRoll + map(data.roll, 0, 255, -30, 30));  
+    int effectPitch = limitAngle(-kalmanAnglePitch + map(data.pitch, 0, 255, -30, 30));
+
+    ch_width_6 = map(effectRoll, -30, 30, 1000, 2000);  
+    ch_width_5 = map(effectPitch, -30, 30, 1000, 2000); 
+
+  } else {
+    ch_width_6 = map(data.roll, 0, 255, 1000, 2000);  
+    ch_width_5 = map(data.pitch, 0, 255, 1000, 2000); 
+  }
+
+  ch_width_3 = map(data.throttle, 0, 255, 1000, 2000); 
+  ch6.writeMicroseconds(ch_width_6);                          // Write the PWM signal
   ch5.writeMicroseconds(ch_width_5);
   ch3.writeMicroseconds(ch_width_3);
   
   while (micros() - loopTimer < 5000);
   loopTimer=micros();
+}
+
+int limitAngle (int angle) {
+    if (angle > 30) {
+      angle = 30;
+    } 
+    if (angle < -30) {
+      angle = -30;
+    }
+    return angle;
 }
