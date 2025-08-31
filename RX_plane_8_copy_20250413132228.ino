@@ -7,6 +7,7 @@
 #include <Wire.h>
 
 bool autopilot = true;
+unsigned long loopTime = 0;
 
 ////MSU variables:
 float rateCalibrationRoll, rateCalibrationPitch, rateCalibrationYaw;
@@ -16,8 +17,6 @@ float rateRoll, ratePitch, rateYaw;
 float accX, accY, accZ;
 float angleRoll, anglePitch;
 
-uint32_t loopTimer;
-
 float kalmanAngleRoll = 0, kalmanUncertaintyAngleRoll = 2*2;
 float kalmanAnglePitch = 0, kalmanUncertaintyAnglePitch = 2*2;
 float kalman1DOOutput[]= {0,0};
@@ -25,8 +24,9 @@ float kalman1DOOutput[]= {0,0};
 
 ////MSU functions:
 void kalman1d(float kalmanState, float kalmanUncertainty, float kalmanInput, float kalmanMesurment) {
-  kalmanState = kalmanState+0.005*kalmanInput;
-  kalmanUncertainty = kalmanUncertainty + 0.005 * 0.005 * 4 * 4;
+  float delta = (millis() - loopTime)/1000.;
+  kalmanState = kalmanState + delta * kalmanInput;
+  kalmanUncertainty = kalmanUncertainty + delta * delta * 4 * 4;
   float kalmanGain = kalmanUncertainty*1/(1*kalmanUncertainty +3*3);
   kalmanState = kalmanState + kalmanGain * (kalmanMesurment-kalmanState);
   kalmanUncertainty = (1-kalmanGain) * kalmanUncertainty;
@@ -136,7 +136,6 @@ void setup()
     rateCalibrationRoll /= 2000;
     rateCalibrationPitch /= 2000;
     rateCalibrationYaw /= 2000;
-    loopTimer = micros();
 ///
                              
   ResetData();      
@@ -149,6 +148,7 @@ void setup()
   radio.setPALevel(RF24_PA_MAX);   // Output power is set for maximum                                              
   radio.startListening();        // Start the radio comunication for receiver                      
   delay(120);
+  loopTime = millis();
 }
 
 unsigned long lastRecvTime = 0;
@@ -157,7 +157,7 @@ void recvData()
 {
   while ( radio.available() ) {
   radio.read(&data, sizeof(Signal));
-  lastRecvTime = millis();                                    // Receive the data
+  lastRecvTime = millis();                                     // Receive the data
   }
 }
 
@@ -177,6 +177,8 @@ void loop()
   kalman1d(kalmanAngleRoll, kalmanUncertaintyAngleRoll, rateRoll, angleRoll);
   kalmanAngleRoll=kalman1DOOutput[0]; 
   kalmanUncertaintyAngleRoll = kalman1DOOutput[1];
+
+  loopTime = millis();
   ///
   
   voltageRawVal = analogRead(A6)*0.00489*6.085;
@@ -208,9 +210,6 @@ void loop()
   ch6.writeMicroseconds(ch_width_6);                          // Write the PWM signal
   ch5.writeMicroseconds(ch_width_5);
   ch3.writeMicroseconds(ch_width_3);
-  
-  while (micros() - loopTimer < 5000);
-  loopTimer=micros();
 }
 
 int limitAngle (int angle) {
