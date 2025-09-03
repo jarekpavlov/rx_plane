@@ -6,7 +6,6 @@
 #include <avr/wdt.h>
 #include <Wire.h>
 
-bool autopilot = true;
 unsigned long loopTime = 0;
 
 ////MSU variables:
@@ -93,7 +92,8 @@ Servo ch3;
 struct Signal {
   byte throttle;
   byte pitch;  
-  byte roll;   
+  byte roll; 
+  bool autopilot;  
 };
 Signal data;
 const uint64_t pipeIn = 000322;
@@ -103,7 +103,8 @@ void ResetData()
 {
   data.throttle = 0;
   data.roll = 127;
-  data.pitch = 127;                                                   
+  data.pitch = 127;    
+  data.autopilot = false;                                               
 }
 
 void setup()
@@ -194,7 +195,7 @@ void loop()
   if ( now - lastRecvTime > 1000 ) {
     ResetData();                                                // Signal lost.. Reset data 
   }
-  if (autopilot) {
+  if (data.autopilot) {
     int effectRoll  = limitAngle(-kalmanAngleRoll + map(data.roll, 0, 255, -30, 30));  
     int effectPitch = limitAngle(-kalmanAnglePitch + map(data.pitch, 0, 255, -30, 30));
 
