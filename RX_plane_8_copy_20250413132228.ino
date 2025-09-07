@@ -197,7 +197,7 @@ void loop()
   }
   if (data.autopilot) {
     int effectRoll  = limitAngle(-kalmanAngleRoll + map(data.roll, 0, 255, -30, 30));  
-    int effectPitch = limitAngle(-kalmanAnglePitch + map(data.pitch, 0, 255, -30, 30));
+    int effectPitch = limitAngle(kalmanAnglePitch + map(data.pitch, 0, 255, -30, 30));
 
     ch_width_6 = map(effectRoll, -30, 30, 1000, 2000);  
     ch_width_5 = map(effectPitch, -30, 30, 1000, 2000); 
@@ -205,7 +205,7 @@ void loop()
   } else {
     ch_width_6 = map(data.roll, 0, 255, 1000, 2000);  
     ch_width_5 = map(data.pitch, 0, 255, 1000, 2000); 
-  }
+  } 
 
   ch_width_3 = map(data.throttle, 0, 255, 1000, 2000); 
   ch6.writeMicroseconds(ch_width_6);                          // Write the PWM signal
