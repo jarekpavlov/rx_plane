@@ -3,7 +3,6 @@
 #include <nRF24L01.h>
 #include <RF24.h>
 #include <Servo.h>
-#include <avr/wdt.h>
 #include <Wire.h>
 
 unsigned long loopTime = 0;
@@ -96,7 +95,7 @@ struct Signal {
   bool autopilot;  
 };
 Signal data;
-const uint64_t pipeIn = 000322;
+const byte pipe[][10] = {"channel","channel2"}; 
 RF24 radio(9, 10); 
 
 void ResetData()
@@ -142,13 +141,14 @@ void setup()
   ResetData();      
                                   // Configure the NRF24 module                         
   radio.begin();
-  radio.openReadingPipe(1,pipeIn);
   radio.setChannel(100);
   radio.setAutoAck(false);
   radio.setDataRate(RF24_250KBPS); // The lowest data rate value for more stable communication 
-  radio.setPALevel(RF24_PA_MAX);   // Output power is set for maximum                                              
+  radio.setPALevel(RF24_PA_MAX);   // Output power is set for maximum                          
+  radio.openReadingPipe(1,pipe[0]);
+  radio.openWritingPipe(pipe[1]);                
   radio.startListening();        // Start the radio comunication for receiver                      
-  delay(120);
+  //delay(120);
   loopTime = millis();
 }
 
