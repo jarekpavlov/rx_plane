@@ -7,6 +7,9 @@
 
 unsigned long loopTime = 0;
 
+bool ledOn;
+unsigned long timeToBlink = 0;
+
 ////MSU variables:
 float rateCalibrationRoll, rateCalibrationPitch, rateCalibrationYaw;
 int rateCalibrationNumber;
@@ -150,6 +153,7 @@ void setup()
   radio.startListening();        // Start the radio comunication for receiver                      
   //delay(120);
   loopTime = millis();
+  timeToBlink = millis() + 2000;
 }
 
 unsigned long lastRecvTime = 0;
@@ -176,9 +180,9 @@ void loop()
   
   voltageRawVal = analogRead(A6)*0.00489*6.085;
   if (voltageRawVal < 9) {
-    digitalWrite(ledOut, HIGH);
+  //  digitalWrite(ledOut, HIGH);
   } else {
-    digitalWrite(ledOut, LOW);
+   // digitalWrite(ledOut, LOW);
   }
 
   while ( radio.available() ) {
@@ -206,6 +210,20 @@ void loop()
   ch6.writeMicroseconds(ch_width_6);                          // Write the PWM signal
   ch5.writeMicroseconds(ch_width_5);
   ch3.writeMicroseconds(ch_width_3);
+  if ((timeToBlink - millis()) < 1000 ) {
+    ledOn = !ledOn;
+    timeToBlink = millis() + 2000; 
+  }
+  if (ledOn) {
+    digitalWrite(ledOut, HIGH);
+  } else {
+    digitalWrite(ledOut, LOW);
+  }
+  delay(10);
+  radio.stopListening();
+  radio.write(&ledOn, sizeof(bool)); 
+  delay(10);
+  radio.startListening();
 }
 
 int limitAngle (int angle) {
