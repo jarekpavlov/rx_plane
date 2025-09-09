@@ -180,9 +180,9 @@ void loop()
   
   voltageRawVal = analogRead(A6)*0.00489*6.085;
   if (voltageRawVal < 9) {
-  //  digitalWrite(ledOut, HIGH);
+    digitalWrite(ledOut, HIGH);
   } else {
-   // digitalWrite(ledOut, LOW);
+    digitalWrite(ledOut, LOW);
   }
 
   while ( radio.available() ) {
@@ -214,15 +214,8 @@ void loop()
     ledOn = !ledOn;
     timeToBlink = millis() + 2000; 
   }
-  if (ledOn) {
-    digitalWrite(ledOut, HIGH);
-  } else {
-    digitalWrite(ledOut, LOW);
-  }
-  delay(10);
   radio.stopListening();
   radio.write(&ledOn, sizeof(bool)); 
-  delay(10);
   radio.startListening();
 }
 
