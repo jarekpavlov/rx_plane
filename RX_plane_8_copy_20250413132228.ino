@@ -154,14 +154,6 @@ void setup()
 
 unsigned long lastRecvTime = 0;
 
-void recvData()
-{
-  while ( radio.available() ) {
-  radio.read(&data, sizeof(Signal));
-  lastRecvTime = millis();                                     // Receive the data
-  }
-}
-
 void loop()
 {
   ///MSU section
@@ -189,12 +181,15 @@ void loop()
     digitalWrite(ledOut, LOW);
   }
 
-  recvData();
+  while ( radio.available() ) {
+    radio.read(&data, sizeof(Signal));
+    lastRecvTime = millis();                                     // Receive the data
+  }
 
-  unsigned long now = millis();
-  if ( now - lastRecvTime > 1000 ) {
+  if ( millis() - lastRecvTime > 1000 ) {
     ResetData();                                                // Signal lost.. Reset data 
   }
+  
   if (data.autopilot) {
     int effectRoll  = limitAngle(-kalmanAngleRoll + map(data.roll, 0, 255, -30, 30));  
     int effectPitch = limitAngle(kalmanAnglePitch + map(data.pitch, 0, 255, -30, 30));
