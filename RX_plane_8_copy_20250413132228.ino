@@ -7,7 +7,6 @@
 
 unsigned long loopTime = 0;
 
-bool ledOn;
 unsigned long timeToBlink = 0;
 
 ////MSU variables:
@@ -85,19 +84,25 @@ int ch_width_3 = 0;
 int ch_width_5 = 0;
 int ch_width_6 = 0;
 
-float voltageRawVal;
 byte ledOut = 8;
 
 Servo ch6;
 Servo ch5;
 Servo ch3;
+
 struct Signal {
   byte throttle;
   byte pitch;  
   byte roll; 
   bool autopilot;  
 };
+struct ResponseSignal {
+  byte voltage;
+  bool ledOn;
+};
+ResponseSignal responseData;
 Signal data;
+
 const byte pipe[][10] = {"channel","channel2"}; 
 RF24 radio(9, 10); 
 
@@ -177,13 +182,6 @@ void loop()
 
   loopTime = millis();
   ///
-  
-  voltageRawVal = analogRead(A6)*0.00489*6.085;
-  if (voltageRawVal < 9) {
-    digitalWrite(ledOut, HIGH);
-  } else {
-    digitalWrite(ledOut, LOW);
-  }
 
   while ( radio.available() ) {
     radio.read(&data, sizeof(Signal));
@@ -210,12 +208,14 @@ void loop()
   ch6.writeMicroseconds(ch_width_6);                          // Write the PWM signal
   ch5.writeMicroseconds(ch_width_5);
   ch3.writeMicroseconds(ch_width_3);
+  responseData.voltage = map(analogRead(A6), 0, 614, 0, 255);// 255 is 3 V, *5.71 to get actual voltage;
+
   if ((timeToBlink - millis()) < 1000 ) {
-    ledOn = !ledOn;
+    responseData.ledOn = !responseData.ledOn;
     timeToBlink = millis() + 2000; 
   }
   radio.stopListening();
-  radio.write(&ledOn, sizeof(bool)); 
+  radio.write(&responseData, sizeof(ResponseSignal)); 
   radio.startListening();
 }
 
