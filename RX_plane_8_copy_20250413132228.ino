@@ -102,6 +102,7 @@ struct ResponseSignal {
 };
 ResponseSignal responseData;
 Signal data;
+byte itCount = 0;
 
 const byte pipe[][10] = {"channel","channel2"}; 
 RF24 radio(9, 10); 
@@ -118,10 +119,11 @@ void setup()
 {
   Serial.begin(9600);
   // Set the pins for each PWM signal                                                
-  ch3.attach(3);
   ch5.attach(5);
   ch6.attach(6); 
+  ch3.attach(3); 
   ch3.writeMicroseconds(1000);
+  //delay(2000); needed for some motor drivers
   pinMode(ledOut, OUTPUT);
   ///Setting up MSU:
   Wire.setClock(400000);
@@ -208,15 +210,20 @@ void loop()
   ch6.writeMicroseconds(ch_width_6);                          // Write the PWM signal
   ch5.writeMicroseconds(ch_width_5);
   ch3.writeMicroseconds(ch_width_3);
-  responseData.voltage = map(analogRead(A6), 0, 614, 0, 255);// 255 is 3 V, *5.71 to get actual voltage;
-
-  if ((timeToBlink - millis()) < 1000 ) {
-    responseData.ledOn = !responseData.ledOn;
-    timeToBlink = millis() + 2000; 
+  responseData.voltage = map(analogRead(A6), 179, 614, 0, 255);// 0 is 0.875, 255 is 3 V, *5.71 to get actual voltage;
+  if (itCount > 10) {
+    if ((timeToBlink - millis()) < 1000 ) {
+      responseData.ledOn = !responseData.ledOn;
+      timeToBlink = millis() + 2000; 
+    }
+    radio.stopListening();
+    radio.write(&responseData, sizeof(ResponseSignal)); 
+    radio.startListening();
+    itCount = 0;
   }
-  radio.stopListening();
-  radio.write(&responseData, sizeof(ResponseSignal)); 
-  radio.startListening();
+
+  
+  itCount++;
 }
 
 int limitAngle (int angle) {
