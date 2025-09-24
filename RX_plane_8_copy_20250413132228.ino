@@ -97,7 +97,6 @@ struct Signal {
   bool autopilot;  
 };
 struct ResponseSignal {
-  byte voltage;
   bool ledOn;
 };
 ResponseSignal responseData;
@@ -151,7 +150,7 @@ void setup()
   ResetData();      
                                   // Configure the NRF24 module                         
   radio.begin();
-  radio.setChannel(100);
+  radio.setChannel(118);
   radio.setAutoAck(false);
   radio.setDataRate(RF24_250KBPS); // The lowest data rate value for more stable communication 
   radio.setPALevel(RF24_PA_MAX);   // Output power is set for maximum                          
@@ -210,8 +209,9 @@ void loop()
   ch6.writeMicroseconds(ch_width_6);                          // Write the PWM signal
   ch5.writeMicroseconds(ch_width_5);
   ch3.writeMicroseconds(ch_width_3);
-  responseData.voltage = map(analogRead(A6), 179, 614, 0, 255);// 0 is 0.875, 255 is 3 V, *5.71 to get actual voltage;
-  if (itCount > 10) {
+  //responseData.voltage = map(analogRead(A6), 179, 614, 0, 255);// 0 is 0.875, 255 is 3 V, *5.71 to get actual voltage;
+  /*
+    if (itCount > 20) {
     if ((timeToBlink - millis()) < 1000 ) {
       responseData.ledOn = !responseData.ledOn;
       timeToBlink = millis() + 2000; 
@@ -221,9 +221,8 @@ void loop()
     radio.startListening();
     itCount = 0;
   }
-
-  
   itCount++;
+  */
 }
 
 int limitAngle (int angle) {
