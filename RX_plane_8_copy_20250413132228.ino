@@ -103,7 +103,7 @@ ResponseSignal responseData;
 Signal data;
 byte itCount = 0;
 
-const byte pipe[][10] = {"channel","channel2"}; 
+const byte pipe[5] = "ch1"; 
 RF24 radio(9, 10); 
 
 void ResetData()
@@ -150,12 +150,11 @@ void setup()
   ResetData();      
                                   // Configure the NRF24 module                         
   radio.begin();
-  radio.setChannel(118);
+  radio.setChannel(100);
   radio.setAutoAck(false);
   radio.setDataRate(RF24_250KBPS); // The lowest data rate value for more stable communication 
   radio.setPALevel(RF24_PA_MAX);   // Output power is set for maximum                          
-  radio.openReadingPipe(1,pipe[0]);
-  radio.openWritingPipe(pipe[1]);                
+  radio.openReadingPipe(1,pipe);
   radio.startListening();        // Start the radio comunication for receiver                      
   //delay(120);
   loopTime = millis();
@@ -209,20 +208,6 @@ void loop()
   ch6.writeMicroseconds(ch_width_6);                          // Write the PWM signal
   ch5.writeMicroseconds(ch_width_5);
   ch3.writeMicroseconds(ch_width_3);
-  //responseData.voltage = map(analogRead(A6), 179, 614, 0, 255);// 0 is 0.875, 255 is 3 V, *5.71 to get actual voltage;
-  /*
-    if (itCount > 20) {
-    if ((timeToBlink - millis()) < 1000 ) {
-      responseData.ledOn = !responseData.ledOn;
-      timeToBlink = millis() + 2000; 
-    }
-    radio.stopListening();
-    radio.write(&responseData, sizeof(ResponseSignal)); 
-    radio.startListening();
-    itCount = 0;
-  }
-  itCount++;
-  */
 }
 
 int limitAngle (int angle) {
