@@ -104,7 +104,7 @@ Signal data;
 byte itCount = 0;
 
 const byte pipe[5] = "ch1"; 
-RF24 radio(9, 10); 
+RF24 radio(7,8); 
 
 void ResetData()
 {
