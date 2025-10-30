@@ -7,8 +7,6 @@
 
 unsigned long loopTime = 0;
 
-unsigned long timeToBlink = 0;
-
 ////MSU variables:
 float rateCalibrationRoll, rateCalibrationPitch, rateCalibrationYaw;
 int rateCalibrationNumber;
@@ -80,15 +78,15 @@ void gyroAccGet() {
   anglePitch = atan(accX/sqrt(accY*accY + accZ*accZ))*1/(3.142/180);
 }
 ///
-int ch_width_3 = 0;
+int ch_width_9 = 0;
+int ch_width_10 = 0;
 int ch_width_5 = 0;
 int ch_width_6 = 0;
 
-byte ledOut = 8;
-
 Servo ch6;
 Servo ch5;
-Servo ch3;
+Servo ch9;
+Servo ch10;
 
 struct Signal {
   byte throttle;
@@ -96,12 +94,8 @@ struct Signal {
   byte roll; 
   bool autopilot;  
 };
-struct ResponseSignal {
-  bool ledOn;
-};
-ResponseSignal responseData;
+
 Signal data;
-byte itCount = 0;
 
 const byte pipe[5] = "ch1"; 
 RF24 radio(7,8); 
@@ -120,10 +114,11 @@ void setup()
   // Set the pins for each PWM signal                                                
   ch5.attach(5);
   ch6.attach(6); 
-  ch3.attach(3); 
-  ch3.writeMicroseconds(1000);
+  ch9.attach(9); 
+  ch10.attach(10);
+  ch9.writeMicroseconds(1000);
+  ch10.writeMicroseconds(1000);
   //delay(2000); needed for some motor drivers
-  pinMode(ledOut, OUTPUT);
   ///Setting up MSU:
   Wire.setClock(400000);
   Wire.begin();
@@ -158,7 +153,6 @@ void setup()
   radio.startListening();        // Start the radio comunication for receiver                      
   //delay(120);
   loopTime = millis();
-  timeToBlink = millis() + 2000;
 }
 
 unsigned long lastRecvTime = 0;
@@ -204,7 +198,8 @@ void loop()
     ch_width_5 = map(data.pitch, 0, 255, 1000, 2000); 
   } 
 
-  ch_width_3 = map(data.throttle, 0, 255, 1000, 2000); 
+  ch_width_9 = map(data.throttle, 0, 255, 1000, 2000); 
+  ch_width_10 = ch_width_9;
   ch6.writeMicroseconds(ch_width_6);                          // Write the PWM signal
   ch5.writeMicroseconds(ch_width_5);
   ch3.writeMicroseconds(ch_width_3);
