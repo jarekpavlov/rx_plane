@@ -202,7 +202,8 @@ void loop()
   ch_width_10 = ch_width_9;
   ch6.writeMicroseconds(ch_width_6);                          // Write the PWM signal
   ch5.writeMicroseconds(ch_width_5);
-  ch3.writeMicroseconds(ch_width_3);
+  ch9.writeMicroseconds(ch_width_9);
+  ch10.writeMicroseconds(ch_width_10);
 }
 
 int limitAngle (int angle) {
