@@ -92,6 +92,7 @@ struct Signal {
   byte throttle;
   byte pitch;  
   byte roll; 
+  byte yaw; 
   bool autopilot;  
 };
 
@@ -105,6 +106,7 @@ void ResetData()
   data.throttle = 0;
   data.roll = 127;
   data.pitch = 127;    
+  data.yaw = 127; 
   data.autopilot = false;                                               
 }
 
