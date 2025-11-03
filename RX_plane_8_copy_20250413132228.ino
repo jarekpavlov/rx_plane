@@ -196,12 +196,27 @@ void loop()
     ch_width_5 = map(effectPitch, -30, 30, 1000, 2000); 
 
   } else {
-    ch_width_6 = map(data.roll, 0, 255, 1000, 2000);  
+    ch_width_6 = map(data.roll, 0, 255, 1000, 2000);
     ch_width_5 = map(data.pitch, 0, 255, 1000, 2000); 
   } 
 
-  ch_width_9 = map(data.throttle, 0, 255, 1000, 2000); 
-  ch_width_10 = ch_width_9;
+  int throttleCorrection = 0;
+
+  if (data.throttle > 80) {
+    throttleCorrection = map(data.yaw, 0, 255, -80, 80);
+  }
+
+  int throttleLeft = data.throttle + throttleCorrection;
+  if (throttleLeft > 255) {
+    throttleLeft = 255;
+  }
+  int throttleRight = data.throttle -  throttleCorrection;
+    if (throttleRight > 255) {
+    throttleRight = 255;
+  }
+
+  ch_width_9 = map(throttleLeft, 0, 255, 1000, 2000); 
+  ch_width_10 = map(throttleRight, 0, 255, 1000, 2000);
   ch6.writeMicroseconds(ch_width_6);                          // Write the PWM signal
   ch5.writeMicroseconds(ch_width_5);
   ch9.writeMicroseconds(ch_width_9);
