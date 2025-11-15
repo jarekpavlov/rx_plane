@@ -120,7 +120,7 @@ void setup()
   ch10.attach(10);
   ch9.writeMicroseconds(1000);
   ch10.writeMicroseconds(1000);
-  //delay(2000); needed for some motor drivers
+  delay(1000);// needed for some motor drivers
   ///Setting up MSU:
   Wire.setClock(400000);
   Wire.begin();
