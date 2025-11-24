@@ -147,7 +147,7 @@ void setup()
   ResetData();      
                                   // Configure the NRF24 module                         
   radio.begin();
-  radio.setChannel(100);
+  radio.setChannel(115);
   radio.setAutoAck(false);
   radio.setDataRate(RF24_250KBPS); // The lowest data rate value for more stable communication 
   radio.setPALevel(RF24_PA_MAX);   // Output power is set for maximum                          
