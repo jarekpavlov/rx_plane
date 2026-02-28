@@ -189,8 +189,8 @@ void loop()
   }
   
   if (data.autopilot) {
-    int effectRoll  = limitAngle(-kalmanAngleRoll + map(data.roll, 0, 255, -30, 30));  
-    int effectPitch = limitAngle(kalmanAnglePitch + map(data.pitch, 0, 255, -30, 30));
+    int effectRoll  = limitAngle(-kalmanAngleRoll + map(data.roll, 0, 255, -30, 30) + 1);  
+    int effectPitch = limitAngle(kalmanAnglePitch + map(data.pitch, 0, 255, -30, 30) + 10);
 
     ch_width_6 = map(effectRoll, -30, 30, 1000, 2000);  
     ch_width_5 = map(effectPitch, -30, 30, 1000, 2000); 
