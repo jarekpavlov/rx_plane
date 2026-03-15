@@ -162,21 +162,23 @@ unsigned long lastRecvTime = 0;
 void loop()
 {
   ///MSU section
-  gyroAccGet();
-  
-  rateRoll -= rateCalibrationRoll;
-  ratePitch -= rateCalibrationPitch;
-  rateYaw -= rateCalibrationYaw;
+  if (data.autopilot) {
+    gyroAccGet();
+    
+    rateRoll -= rateCalibrationRoll;
+    ratePitch -= rateCalibrationPitch;
+    rateYaw -= rateCalibrationYaw;
 
-  kalman1d(kalmanAnglePitch, kalmanUncertaintyAnglePitch, -ratePitch, anglePitch);
-  kalmanAnglePitch=kalman1DOOutput[0];
-  kalmanUncertaintyAnglePitch = kalman1DOOutput[1];
+    kalman1d(kalmanAnglePitch, kalmanUncertaintyAnglePitch, -ratePitch, anglePitch);
+    kalmanAnglePitch=kalman1DOOutput[0];
+    kalmanUncertaintyAnglePitch = kalman1DOOutput[1];
 
-  kalman1d(kalmanAngleRoll, kalmanUncertaintyAngleRoll, rateRoll, angleRoll);
-  kalmanAngleRoll=kalman1DOOutput[0]; 
-  kalmanUncertaintyAngleRoll = kalman1DOOutput[1];
+    kalman1d(kalmanAngleRoll, kalmanUncertaintyAngleRoll, rateRoll, angleRoll);
+    kalmanAngleRoll=kalman1DOOutput[0]; 
+    kalmanUncertaintyAngleRoll = kalman1DOOutput[1];
 
-  loopTime = millis();
+    loopTime = millis();
+  }
   ///
 
   while ( radio.available() ) {
@@ -189,11 +191,12 @@ void loop()
   }
   
   if (data.autopilot) {
-    int throttlePitchCorrection = 0;
-    if (data.throttle > 60) {
+    int throttlePitchCorrection = -5;
+    /*
+        if (data.throttle > 60) {
       throttlePitchCorrection = map(data.throttle, 60, 255, 0, 10);
     }
-    
+    */
     int effectRoll  = limitAngle(-kalmanAngleRoll + map(data.roll, 0, 255, -30, 30) + 1);  
     int effectPitch = limitAngle(kalmanAnglePitch + map(data.pitch, 0, 255, -30, 30) + throttlePitchCorrection);
 
