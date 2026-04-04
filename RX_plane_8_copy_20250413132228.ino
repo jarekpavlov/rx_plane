@@ -191,12 +191,10 @@ void loop()
   }
   
   if (data.autopilot) {
-    int throttlePitchCorrection = -8;
-    /*
-        if (data.throttle > 60) {
-      throttlePitchCorrection = map(data.throttle, 60, 255, 0, 10);
-    }
-    */
+    int throttlePitchCorrection = 10 * data.throttle/255 - 8;
+
+    throttlePitchCorrection = map(data.throttle, 0, 255, 0, 10);
+    
     int effectRoll  = limitAngle(-kalmanAngleRoll + map(data.roll, 0, 255, -30, 30) + 1);  
     int effectPitch = limitAngle(kalmanAnglePitch + map(data.pitch, 0, 255, -30, 30) + throttlePitchCorrection);
 
@@ -208,19 +206,21 @@ void loop()
     ch_width_5 = map(data.pitch, 0, 255, 1000, 2000); 
   } 
 
-  int throttleCorrection = 0;
-
-  if (data.throttle > 80) {
-    throttleCorrection = map(data.yaw, 0, 255, -80, 80);
-  }
+  int throttleCorrection = map(data.yaw, 0, 255, -150, 150);
 
   int throttleLeft = data.throttle + throttleCorrection;
   if (throttleLeft > 255) {
     throttleLeft = 255;
   }
+  if (throttleLeft < 0) {
+    throttleLeft = 0;
+  }
   int throttleRight = data.throttle -  throttleCorrection;
-    if (throttleRight > 255) {
+  if (throttleRight > 255) {
     throttleRight = 255;
+  }
+  if (throttleRight < 0) {
+    throttleRight = 0;
   }
 
   ch_width_9 = map(throttleLeft, 0, 255, 1000, 2000); 
