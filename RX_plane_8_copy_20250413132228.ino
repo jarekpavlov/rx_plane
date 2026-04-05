@@ -4,6 +4,7 @@
 #include <RF24.h>
 #include <Servo.h>
 #include <Wire.h>
+#include <avr/wdt.h>
 
 unsigned long loopTime = 0;
 
@@ -155,6 +156,7 @@ void setup()
   radio.startListening();        // Start the radio comunication for receiver                      
   //delay(120);
   loopTime = millis();
+  wdt_enable(WDTO_4S);
 }
 
 unsigned long lastRecvTime = 0;
@@ -229,6 +231,8 @@ void loop()
   ch5.writeMicroseconds(ch_width_5);
   ch9.writeMicroseconds(ch_width_9);
   ch10.writeMicroseconds(ch_width_10);
+
+  wdt_reset();
 }
 
 int limitAngle (int angle) {
