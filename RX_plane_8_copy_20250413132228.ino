@@ -193,9 +193,7 @@ void loop()
   }
   
   if (data.autopilot) {
-    int throttlePitchCorrection = 13 * data.throttle/255 - 8;
-
-    throttlePitchCorrection = map(data.throttle, 0, 255, 0, 10);
+    int throttlePitchCorrection = 15 * data.throttle/255 - 8;
     
     int effectRoll  = limitAngle(-kalmanAngleRoll + map(data.roll, 0, 255, -30, 30) + 1);  
     int effectPitch = limitAngle(kalmanAnglePitch + map(data.pitch, 0, 255, -30, 30) + throttlePitchCorrection);
