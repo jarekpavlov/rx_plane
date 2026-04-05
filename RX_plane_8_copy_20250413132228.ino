@@ -193,7 +193,7 @@ void loop()
   }
   
   if (data.autopilot) {
-    int throttlePitchCorrection = 10 * data.throttle/255 - 8;
+    int throttlePitchCorrection = 13 * data.throttle/255 - 8;
 
     throttlePitchCorrection = map(data.throttle, 0, 255, 0, 10);
     
